@@ -6,12 +6,20 @@
             <div class="article-metadata">
                 <a class="mr-2" href="{{ url_for('users.user_posts', username=post.author.username) }}">{{ post.author.username }}</a>
                 <small class="text-muted">{{ post.date_posted.strftime('%d-%m-%Y %H:%M') }}</small>
-                {% if post.author == current_user %}
-                    <div>
-                        <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
-                        <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
-                    </div>
-                {% endif %}
+                <div>
+                    {% if post.author == current_user %}
+                        <div>
+                            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('posts.update_post', post_id=post.id) }}">Edit</a>
+                            <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+                        </div>
+                    {% endif %}
+                    {{ post.like|length }}
+                    {% if current_user in post.like|map(attribute="author")|list %}
+                        <a href="/like-post/{{ post.id }}"><i class="fa-solid fa-thumbs-up"></i></a>
+                    {% else %}
+                        <a href="/like-post/{{ post.id }}"><i class="fa-regular fa-thumbs-up"></i></a>
+                    {% endif %}
+                </div>
             </div>
             <h2 class="article-title">{{ post.title }}</h2>
             <p class="article-content">{{ post.content }}</p>
