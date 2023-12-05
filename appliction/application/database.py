@@ -21,6 +21,7 @@ class Users(db.Model, UserMixin):
     role = db.Column(db.String(15), nullable=False, default='user')
     posts = db.Relationship('Post', backref='author', lazy=True)
     comments = db.Relationship('Comment', backref='author', lazy=True)
+    likes = db.Relationship('Like', backref='author', lazy=True)
 
     def get_reset_token(self):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -47,6 +48,7 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     comments = db.Relationship('Comment', backref='post', lazy=True)
+    like = db.Relationship('Like', backref='post', lazy=True)
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
@@ -61,3 +63,9 @@ class Comment(db.Model):
 
     def __repr__(self):
         return f"Post('{self.timestamp}', '{self.text}')"
+
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

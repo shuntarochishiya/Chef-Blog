@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from flask_login import current_user, login_required
 from application import db
-from application.database import Post, Comment
+from application.database import Post, Comment, Like
 from application.posts.forms import PostForm
 
 posts = Blueprint('posts', __name__)
@@ -65,13 +65,11 @@ def create_comment(post_id):
     if not text:
         flash("Comment can not be empty!", 'warning')
     else:
-        if post:
-            comment = Comment(text=text, author=current_user, post_id=post_id)
-            db.session.add(comment)
-            db.session.commit()
-            flash("Comment has been added successfully!", 'success')
-        else:
-            abort(404)
+        comment = Comment(text=text, author=current_user, post_id=post_id)
+        db.session.add(comment)
+        db.session.commit()
+        flash("Comment has been added successfully!", 'success')
+
     return redirect(url_for('posts.post', post_id=post.id))
 
 
@@ -79,13 +77,25 @@ def create_comment(post_id):
 @login_required
 def delete_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
-    if not comment:
-        abort(404)
-    elif current_user != comment.author and current_user != comment.post.author:
+    if current_user != comment.author and current_user != comment.post.author:
         abort(403)
     else:
         db.session.delete(comment)
         db.session.commit()
-        flash("Comment has been deleted successfully!", 'success')
 
     return redirect(url_for('main.home'))
+
+
+@posts.route("/like-post/<int:post_id>", methods=['GET'])
+@login_required
+def like(post_id):
+    post = Post.query.get_or_404(post_id)
+    like = Like.query.filter_by(author=current_user, post_id=post_id).first()
+    if like:
+        db.session.delete(like)
+    else:
+        like = Like(author=current_user, post_id=post_id)
+        db.session.add(like)
+    db.session.commit()
+
+    return redirect(url_for('posts.post', post_id=post.id))
