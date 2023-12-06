@@ -95,6 +95,7 @@ def like(post_id):
         db.session.delete(like)
     else:
         like = Like(author=current_user, post_id=post_id)
+        flash("Post added to favourites", 'info')
         db.session.add(like)
     db.session.commit()
 
