@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, Blueprint
 from flask_login import login_user, current_user, logout_user, login_required
 from application import db, bcrypt
-from application.database import Users, Post
+from application.database import Users, Post, Like
 from application.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from application.users.utils import save_picture, send_reset_email
 
@@ -105,3 +105,11 @@ def reset_token(token):
         flash('Yor password has been reset successfully!', 'success')
         return redirect(url_for('users.login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
+
+
+@users.route("/user/favourites")
+@login_required
+def favourite():
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.join(Like, (Like.post_id == Post.id)).filter(Like.user_id == current_user.id).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    return render_template('favourite_posts.html', posts=posts, user=current_user)
