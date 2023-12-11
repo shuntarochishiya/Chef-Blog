@@ -18,7 +18,42 @@
                     {% else %}
                         {{ form.title(class="form-control form-control-lg") }}
                     {% endif %}
+                </div><br/>
+
+                <script type="text/javascript" src="{{ url_for('static', filename='index.js')}}"></script>
+
+                <div class="form-group">
+                    <div id="InputsWrapper">
+                        <div class="row">
+                            <h6>Ingredients</h6>
+                            <div>
+                                <div class="left-division">
+                                    <input type="text" name="ingredient[]" placeholder="Enter ingredient" class="form-control name_list" />
+                                </div>
+                                <div class="right-division">
+                                    <input type="text" name="ingredient[]" placeholder="Amount (g)" class="form-control name_list" />
+                                </div>
+                            </div>
+                            <div class="mt-1 mb-3"><button type="button" name="add" id="AddMoreFileBox" class="btn btn-success">Add More</button></div>
+                        </div>
+                    </div>
                 </div>
+                <h6>Macronutrients</h6>
+                <div>
+                    <div class="left-position">
+                        <input type="text" placeholder="Calories" class="form-control"/>
+                    </div>
+                    <div class="left-position">
+                        <input type="text" placeholder="Proteins" class="form-control"/>
+                    </div>
+                    <div class="left-position">
+                        <input type="text" placeholder="Lipids" class="form-control"/>
+                    </div>
+                    <div class="left-position">
+                        <input type="text" placeholder="Carbohydrates" class="form-control"/>
+                    </div><br/><br/>
+                </div>
+
                 <div class="form-group">
                     {{ form.content.label(class="form-control-label") }}
 

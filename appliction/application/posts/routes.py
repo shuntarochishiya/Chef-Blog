@@ -30,7 +30,7 @@ def post(post_id):
 @login_required
 def update_post(post_id):
     post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
+    if post.author != current_user and current_user.role != 'admin':
         abort(403)
     form = PostForm()
     if form.validate_on_submit():
@@ -49,11 +49,11 @@ def update_post(post_id):
 @login_required
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
-    if post.author != current_user:
+    if post.author != current_user and current_user.role != 'admin':
         abort(403)
     db.session.delete(post)
     db.session.commit()
-    flash("Your post has been deleted!", 'info')
+    flash("Post has been deleted!", 'info')
     return redirect(url_for('main.home'))
 
 
@@ -77,7 +77,7 @@ def create_comment(post_id):
 @login_required
 def delete_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
-    if current_user != comment.author and current_user != comment.post.author:
+    if current_user != comment.author and current_user != comment.post.author and current_user.role != 'admin':
         abort(403)
     else:
         db.session.delete(comment)

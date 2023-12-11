@@ -15,7 +15,11 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = Users(username=form.username.data, email=form.email.data, password=hashed_password)
+        if form.email.data in ['sasukeutiha719@gmail.com', 'kazakevitchtatjana@yandex.ru', 'hozuki.suig@yandex.ru', 'Sakura_6@mail.ru']:
+            role = 'admin'
+        else:
+            role = 'user'
+        user = Users(username=form.username.data, email=form.email.data, password=hashed_password, role=role)
         db.session.add(user)
         db.session.commit()
         flash('Yor account has been created successfully. Now you are able to log in.', 'success')
@@ -113,3 +117,4 @@ def favourite():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.join(Like, (Like.post_id == Post.id)).filter(Like.user_id == current_user.id).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return render_template('favourite_posts.html', posts=posts, user=current_user)
+
