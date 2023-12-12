@@ -33,6 +33,11 @@
                         <a class="nav-item nav-link" href="{{ url_for('main.home') }}">Home</a>
                         <a class="nav-item nav-link" href="{{ url_for('main.about') }}">About</a>
                     </div>
+                    <form method="POST" action="{{ url_for('main.search') }}" class="d-flex">
+                        {{ form.hidden_tag() }}
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searched"/>
+                        <button class="btn btn-dark" type="submit">Search</button>
+                    </form>
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav ms-auto">
                         {% if current_user.is_authenticated %}
@@ -47,6 +52,7 @@
                 </div>
             </div>
         </nav>
+
     </header>
 
     <main role="main" class="container">

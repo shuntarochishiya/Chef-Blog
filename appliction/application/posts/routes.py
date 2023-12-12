@@ -2,9 +2,15 @@ from flask import render_template, url_for, flash, redirect, request, abort, Blu
 from flask_login import current_user, login_required
 from application import db
 from application.database import Post, Comment, Like
-from application.posts.forms import PostForm
+from application.posts.forms import PostForm, SearchForm
 
 posts = Blueprint('posts', __name__)
+
+
+@posts.context_processor
+def navbar():
+    form = SearchForm()
+    return dict(form=form)
 
 
 @posts.route("/post/new", methods=['GET', 'POST'])
@@ -100,3 +106,4 @@ def like(post_id):
     db.session.commit()
 
     return redirect(url_for('posts.post', post_id=post.id))
+

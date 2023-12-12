@@ -4,8 +4,15 @@ from application import db, bcrypt
 from application.database import Users, Post, Like
 from application.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from application.users.utils import save_picture, send_reset_email
+from application.posts.forms import SearchForm
 
 users = Blueprint('users', __name__)
+
+
+@users.context_processor
+def navbar():
+    form = SearchForm()
+    return dict(form=form)
 
 
 @users.route("/register", methods=['GET', 'POST'])
@@ -117,4 +124,3 @@ def favourite():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.join(Like, (Like.post_id == Post.id)).filter(Like.user_id == current_user.id).order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
     return render_template('favourite_posts.html', posts=posts, user=current_user)
-
