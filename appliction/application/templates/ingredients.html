@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% for ingredient in ingredients.items %}
+        <article class="media content-section">
+            <div class="media-body">
+                <h4>{{ ingredient.name }}</h4>
+                <small class="text-muted">Category: {{ ingredient.category }}</small>
+            </div>
+        </article>
+    {% endfor %}
+    {% for page_num in ingredients.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
+        {% if page_num %}
+            {% if ingredients.page == page_num %}
+                <a class="btn btn-info mb-4" href="{{ url_for('main.ingredients', page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('main.ingredients', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            ...
+        {% endif %}
+    {% endfor %}
+{% endblock content %}

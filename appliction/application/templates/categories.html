@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% for category in categories.items %}
+        <article class="media content-section">
+            <div class="media-body">
+                <a href="#"><h4>{{ category.name }}</h4></a>
+            </div>
+        </article>
+    {% endfor %}
+    {% for page_num in categories.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
+        {% if page_num %}
+            {% if categories.page == page_num %}
+                <a class="btn btn-info mb-4" href="{{ url_for('main.ingredients', page=page_num) }}">{{ page_num }}</a>
+            {% else %}
+                <a class="btn btn-outline-info mb-4" href="{{ url_for('main.ingredients', page=page_num) }}">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            ...
+        {% endif %}
+    {% endfor %}
+{% endblock content %}

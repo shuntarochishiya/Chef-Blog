@@ -49,6 +49,9 @@ class Post(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     comments = db.Relationship('Comment', backref='post', lazy=True)
     like = db.Relationship('Like', backref='post', lazy=True)
+    ingredient = db.Relationship('IngredientsForDish', backref='ingredient', lazy=True)
+    cuisine = db.Relationship('DishCuisines', backref='cuisine', lazy=True)
+    category = db.Relationship('DishCategories', backref='category', lazy=True)
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
@@ -72,6 +75,40 @@ class Like(db.Model):
 
 
 class Ingredient(db.Model):
+    name = db.Column(db.String(20), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(500), nullable=False)
-    exp_time = db.Column(db.String(50), nullable=False)
+    expiration_date = db.Column(db.String(20))
+    category = db.Column(db.String(20))
+    dish = db.Relationship('IngredientsForDish', backref='dish', lazy=True)
+
+
+class IngredientsForDish(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    amount = db.Column(db.Integer, nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id'), nullable=False)
+
+
+class Cuisine(db.Model):
+    name = db.Column(db.String(20), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    dish = db.Relationship('DishCuisines', backref='dish', lazy=True)
+
+
+class DishCuisines(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dish_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    cuisine_id = db.Column(db.Integer, db.ForeignKey('cuisine.id'), nullable=False)
+
+
+class Category(db.Model):
+    name = db.Column(db.String(20), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    dish = db.Relationship('DishCategories', backref='dish', lazy=True)
+
+
+class DishCategories(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    dish_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+
