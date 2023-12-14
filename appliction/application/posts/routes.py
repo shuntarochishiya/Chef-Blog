@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from flask_login import current_user, login_required
 from application import db
-from application.database import Post, Comment, Like
+from application.database import Post, Comment, Like, Cuisine, Category, Ingredient
 from application.posts.forms import PostForm, SearchForm
 
 posts = Blueprint('posts', __name__)
@@ -17,9 +17,22 @@ def navbar():
 @login_required
 def new_post():
     form = PostForm()
+    form.category.choices = [(ca.id, ca.name) for ca in Category.query.all()]
+    form.cuisine.choices = [(cu.id, cu.name) for cu in Cuisine.query.all()]
+    form.ingredient.choices = [(i.id, i.name) for i in Ingredient.query.all()]
     if form.validate_on_submit():
         flash("Your post has been created!", 'success')
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        post = Post(title=form.title.data, content=form.content.data, author=current_user, calories=form.calories.data,
+                    lipids=form.lipids.data, carbohydrates=form.carbohydrates.data, proteins=form.proteins.data)
+
+        categories = Category.query.filter(Category.id.in_(form.category.data)).all()
+        cuisines = Cuisine.query.filter(Cuisine.id.in_(form.cuisine.data)).all()
+        ingredients = Ingredient.query.filter(Ingredient.id.in_(form.ingredient.data)).all()
+
+        post.cuisines.extend(cuisines)
+        post.categories.extend(categories)
+        post.ingredients.extend(ingredients)
+
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('main.home'))
@@ -29,7 +42,10 @@ def new_post():
 @posts.route("/post/<int:post_id>")
 def post(post_id):
     post = Post.query.get_or_404(post_id)
-    return render_template('post.html', title=post.title, post=post)
+    cuisines = Cuisine.query.all()
+    categories = Category.query.all()
+    ingredients = Ingredient.query.all()
+    return render_template('post.html', title=post.title, post=post, cuisines=cuisines, categories=categories, ingredients=ingredients)
 
 
 @posts.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
@@ -39,15 +55,41 @@ def update_post(post_id):
     if post.author != current_user and current_user.role != 'admin':
         abort(403)
     form = PostForm()
+    form.category.choices = [(ca.id, ca.name) for ca in Category.query.all()]
+    form.cuisine.choices = [(cu.id, cu.name) for cu in Cuisine.query.all()]
+    form.ingredient.choices = [(i.id, i.name) for i in Ingredient.query.all()]
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
+        post.calories = form.calories.data
+        post.lipids = form.lipids.data
+        post.carbohydrates = form.carbohydrates.data
+        post.proteins = form.proteins.data
+
+        post.cuisines = []
+        post.ingredients = []
+        post.categories = []
+
+        categories = Category.query.filter(Category.id.in_(form.category.data)).all()
+        cuisines = Cuisine.query.filter(Cuisine.id.in_(form.cuisine.data)).all()
+        ingredients = Ingredient.query.filter(Ingredient.id.in_(form.ingredient.data)).all()
+
+        post.cuisines.extend(cuisines)
+        post.categories.extend(categories)
+        post.ingredients.extend(ingredients)
         db.session.commit()
         flash("Your post has been updated!", 'success')
         return redirect(url_for('posts.post', post_id=post.id))
     elif request.method == 'GET':
         form.title.data = post.title
         form.content.data = post.content
+        form.lipids.data = post.lipids
+        form.calories.data = post.calories
+        form.carbohydrates.data = post.carbohydrates
+        form.proteins.data = post.proteins
+        form.ingredient.data = post.ingredients
+        form.cuisine.data = post.cuisines
+        form.category.data = post.categories
     return render_template('create_post.html', title='Update Post', form=form, legend='Update Post')
 
 
@@ -106,4 +148,3 @@ def like(post_id):
     db.session.commit()
 
     return redirect(url_for('posts.post', post_id=post.id))
-

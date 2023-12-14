@@ -3,11 +3,38 @@ from application import db, login_manager
 from flask_login import UserMixin
 from itsdangerous import URLSafeTimedSerializer as Serializer
 from flask import current_app
+from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
+
+
+post_cuisine_association = Table(
+    'post_cuisine_association',
+    db.Model.metadata,
+    Column('post_id', Integer, ForeignKey('post.id')),
+    Column('cuisine_id', Integer, ForeignKey('cuisine.id'))
+)
+
+
+post_category_association = Table(
+    'post_category_association',
+    db.Model.metadata,
+    Column('post_id', Integer, ForeignKey('post.id')),
+    Column('category_id', Integer, ForeignKey('category.id'))
+)
+
+
+post_ingredient_association = Table(
+    'post_ingredient_association',
+    db.Model.metadata,
+    Column('post_id', Integer, ForeignKey('post.id')),
+    Column('ingredient_id', Integer, ForeignKey('ingredient.id')),
+    Column('amount', Integer)
+)
 
 
 class Users(db.Model, UserMixin):
@@ -19,9 +46,9 @@ class Users(db.Model, UserMixin):
     reg_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
     bio = db.Column(db.String(200))
     role = db.Column(db.String(15), nullable=False, default='user')
-    posts = db.Relationship('Post', backref='author', lazy=True)
-    comments = db.Relationship('Comment', backref='author', lazy=True)
-    likes = db.Relationship('Like', backref='author', lazy=True)
+    posts = db.Relationship('Post', backref='author', lazy=True, cascade="all, delete-orphan")
+    comments = db.Relationship('Comment', backref='author', lazy=True, cascade="all, delete-orphan")
+    likes = db.Relationship('Like', backref='author', lazy=True, cascade="all, delete-orphan")
 
     def get_reset_token(self):
         s = Serializer(current_app.config['SECRET_KEY'])
@@ -47,11 +74,15 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    comments = db.Relationship('Comment', backref='post', lazy=True)
-    like = db.Relationship('Like', backref='post', lazy=True)
-    ingredient = db.Relationship('IngredientsForDish', backref='ingredient', lazy=True)
-    cuisine = db.Relationship('DishCuisines', backref='cuisine', lazy=True)
-    category = db.Relationship('DishCategories', backref='category', lazy=True)
+    comments = db.Relationship('Comment', backref='post', lazy=True, cascade="all, delete-orphan")
+    like = db.Relationship('Like', backref='post', lazy=True, cascade="all, delete-orphan")
+    calories = db.Column(db.Integer, nullable=False)
+    proteins = db.Column(db.Integer, nullable=False)
+    lipids = db.Column(db.Integer, nullable=False)
+    carbohydrates = db.Column(db.Integer, nullable=False)
+    cuisines = relationship('Cuisine', secondary=post_cuisine_association, back_populates='posts')
+    categories = relationship('Category', secondary=post_category_association, back_populates='posts')
+    ingredients = relationship('Ingredient', secondary=post_ingredient_association, back_populates='posts')
 
     def __repr__(self):
         return f"Post('{self.title}', '{self.date_posted}')"
@@ -79,36 +110,16 @@ class Ingredient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     expiration_date = db.Column(db.String(20))
     category = db.Column(db.String(20))
-    dish = db.Relationship('IngredientsForDish', backref='dish', lazy=True)
-
-
-class IngredientsForDish(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    amount = db.Column(db.Integer, nullable=False)
-    recipe_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    ingredient_id = db.Column(db.Integer, db.ForeignKey('ingredient.id'), nullable=False)
+    posts = relationship('Post', secondary=post_ingredient_association, back_populates='ingredients')
 
 
 class Cuisine(db.Model):
     name = db.Column(db.String(20), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
-    dish = db.Relationship('DishCuisines', backref='dish', lazy=True)
-
-
-class DishCuisines(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    dish_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    cuisine_id = db.Column(db.Integer, db.ForeignKey('cuisine.id'), nullable=False)
+    posts = relationship('Post', secondary=post_cuisine_association, back_populates='cuisines')
 
 
 class Category(db.Model):
     name = db.Column(db.String(20), nullable=False)
     id = db.Column(db.Integer, primary_key=True)
-    dish = db.Relationship('DishCategories', backref='dish', lazy=True)
-
-
-class DishCategories(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    dish_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-
+    posts = relationship('Post', secondary=post_category_association, back_populates='categories')

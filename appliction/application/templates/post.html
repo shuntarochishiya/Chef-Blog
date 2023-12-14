@@ -21,8 +21,39 @@
                     {% endif %}
                 </div>
             </div>
-            <h2 class="article-title">{{ post.title }}</h2>
+            <h1 class="article-title">{{ post.title }}</h1>
+            <p class="lead">Origins:</p>
+            {% for origin in cuisines %}
+                {% for cuisine in post.cuisines %}
+                    {% if origin.id == cuisine.id %}
+                        <p>{{ origin.name }}</p>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            <p class="lead">Categories:</p>
+            {% for category in categories %}
+                {% for diet in post.categories %}
+                    {% if category.id == diet.id %}
+                        <p>{{ category.name }}</p>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            <p class="lead">Ingredients:</p>
+            {% for ingredient in ingredients %}
+                {% for product in post.ingredients %}
+                    {% if ingredient.id == product.id %}
+                        <p>{{ ingredient.name }}</p>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+            <p class="lead">Macronutrients: </p>
+            <p>Calories: {{ post.calories }}</p>
+            <p>Proteins: {{ post.proteins }}</p>
+            <p>Lipids: {{ post.lipids }}</p>
+            <p>Carbohydrates: {{ post.carbohydrates }}</p>
+            <hr class="hr"/>
             <p class="article-content">{{ post.content }}</p>
+
         </div>
     </article>
     <div class="content-section ms-5">

@@ -95,3 +95,15 @@ a.article-title:hover {
   margin-right: 5px;
   margin-left: 10px;
 }
+
+.password-container{
+  display: inline-block;
+  border: 1px solid #aaa;
+  width: 95%;
+}
+
+.eye{
+  display: inline-block;
+  justify-content: flex-end;
+  margin-left: 10px;
+}

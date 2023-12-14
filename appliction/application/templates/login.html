@@ -28,7 +28,8 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        {{ form.password(class="form-control form-control-lg") }}
+                        {{ form.password(class="form-control form-control-lg password-container") }}
+                        <i class="fa-solid fa-eye eye"></i>
                     {% endif %}
                 </div>
                 <div class="form-check">
