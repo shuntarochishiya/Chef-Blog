@@ -22,7 +22,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        if form.email.data in ['sasukeutiha719@gmail.com', 'kazakevitchtatjana@yandex.ru', 'hozuki.suig@yandex.ru', 'Sakura_6@mail.ru']:
+        if form.email.data in ['sasukeutiha719@gmail.com', 'kazakevitchtatjana@yandex.ru', 'Sakura_6@mail.ru', 'Sasukeutiha719@gmail.com', 'Kazakevitchtatjana@yandex.ru', 'sakura_6@mail.ru']:
             role = 'admin'
         else:
             role = 'user'
