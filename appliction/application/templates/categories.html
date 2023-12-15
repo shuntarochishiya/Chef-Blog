@@ -3,7 +3,7 @@
     {% for category in categories.items %}
         <article class="media content-section">
             <div class="media-body">
-                <a href="#"><h4>{{ category.name }}</h4></a>
+                <a href="{{ url_for('posts.dish_category', category_id = category.id) }}"><h4>{{ category.name }}</h4></a>
             </div>
         </article>
     {% endfor %}

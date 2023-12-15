@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request, abort, Blueprint
 from flask_login import current_user, login_required
 from application import db
-from application.database import Post, Comment, Like, Cuisine, Category, Ingredient
+from application.database import Post, Comment, Like, Cuisine, Category, Ingredient, post_ingredient_association
 from application.posts.forms import PostForm, SearchForm
 
 posts = Blueprint('posts', __name__)
@@ -17,9 +17,9 @@ def navbar():
 @login_required
 def new_post():
     form = PostForm()
-    form.category.choices = [(ca.id, ca.name) for ca in Category.query.all()]
-    form.cuisine.choices = [(cu.id, cu.name) for cu in Cuisine.query.all()]
-    form.ingredient.choices = [(i.id, i.name) for i in Ingredient.query.all()]
+    form.category.choices = [(ca.id, ca.name) for ca in Category.query.order_by(Category.name.asc()).all()]
+    form.cuisine.choices = [(cu.id, cu.name) for cu in Cuisine.query.order_by(Cuisine.name.asc()).all()]
+    form.ingredient.choices = [(i.id, i.name) for i in Ingredient.query.order_by(Ingredient.name.asc()).all()]
     if form.validate_on_submit():
         flash("Your post has been created!", 'success')
         post = Post(title=form.title.data, content=form.content.data, author=current_user, calories=form.calories.data,
@@ -27,14 +27,21 @@ def new_post():
 
         categories = Category.query.filter(Category.id.in_(form.category.data)).all()
         cuisines = Cuisine.query.filter(Cuisine.id.in_(form.cuisine.data)).all()
-        ingredients = Ingredient.query.filter(Ingredient.id.in_(form.ingredient.data)).all()
 
         post.cuisines.extend(cuisines)
         post.categories.extend(categories)
-        post.ingredients.extend(ingredients)
 
         db.session.add(post)
         db.session.commit()
+
+        for i in range(len(request.form.getlist('ingredient'))):
+            ingredient_id = int(request.form.getlist('ingredient')[i])
+            amount = int(request.form.getlist('amount')[i])
+
+            post_ingredients = post_ingredient_association.insert().values(post_id=post.id, ingredient_id=ingredient_id, amount=amount)
+            db.session.execute(post_ingredients)
+            db.session.commit()
+
         return redirect(url_for('main.home'))
     return render_template('create_post.html', title='New Post', form=form, legend='New Post')
 
@@ -72,11 +79,17 @@ def update_post(post_id):
 
         categories = Category.query.filter(Category.id.in_(form.category.data)).all()
         cuisines = Cuisine.query.filter(Cuisine.id.in_(form.cuisine.data)).all()
-        ingredients = Ingredient.query.filter(Ingredient.id.in_(form.ingredient.data)).all()
+
+        for i in range(len(request.form.getlist('ingredient'))):
+            ingredient_id = int(request.form.getlist('ingredient')[i])
+            amount = int(request.form.getlist('amount')[i])
+
+            post_ingredients = post_ingredient_association.insert().values(post_id=post.id, ingredient_id=ingredient_id, amount=amount)
+            db.session.execute(post_ingredients)
+            db.session.commit()
 
         post.cuisines.extend(cuisines)
         post.categories.extend(categories)
-        post.ingredients.extend(ingredients)
         db.session.commit()
         flash("Your post has been updated!", 'success')
         return redirect(url_for('posts.post', post_id=post.id))
@@ -148,3 +161,19 @@ def like(post_id):
     db.session.commit()
 
     return redirect(url_for('posts.post', post_id=post.id))
+
+
+@posts.route("/cuisine/<int:cuisine_id>")
+def dish_cuisine(cuisine_id):
+    cuisine = Cuisine.query.get_or_404(cuisine_id)
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    return render_template('dish_cuisines.html', posts=posts, cuisine=cuisine)
+
+
+@posts.route("/category/<int:category_id>")
+def dish_category(category_id):
+    category = Category.query.get_or_404(category_id)
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    return render_template('dish_categories.html', posts=posts, category=category)
