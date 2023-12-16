@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1 class="mb-3">Dishes in {{ cuisine.name }} cuisine</h1>
-    {% for post in posts.items %}
+    {% for post in posts %}
         {% for p_cuisine in post.cuisines %}
             {% if p_cuisine.id == cuisine.id %}
                 <article class="media content-section">
