@@ -166,14 +166,12 @@ def like(post_id):
 @posts.route("/cuisine/<int:cuisine_id>")
 def dish_cuisine(cuisine_id):
     cuisine = Cuisine.query.get_or_404(cuisine_id)
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    posts = Post.query.order_by(Post.date_posted.desc()).all()
     return render_template('dish_cuisines.html', posts=posts, cuisine=cuisine)
 
 
 @posts.route("/category/<int:category_id>")
 def dish_category(category_id):
     category = Category.query.get_or_404(category_id)
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
+    posts = Post.query.order_by(Post.date_posted.desc()).all()
     return render_template('dish_categories.html', posts=posts, category=category)
