@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 from application.config import Config
+import psycopg2
 
 
 db = SQLAlchemy()
@@ -13,6 +14,15 @@ login_manager.login_view = 'users.login'
 login_manager.login_message_category = 'info'
 mail = Mail()
 
+
+def init_database():
+    conn = psycopg2.connect(host='localhost',
+                            user='postgres',
+                            database='postgres',
+                            port=5432,
+                            password='Kd9b6uxa2W')
+
+    return conn
 
 def create_app(config_class=Config):
     app = Flask(__name__)
