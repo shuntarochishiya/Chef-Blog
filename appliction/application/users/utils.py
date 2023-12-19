@@ -9,7 +9,10 @@ from application import mail
 def send_reset_email(user):
     token = user.get_reset_token()
     msg = Message('Password reset request', sender='kazakevitchtatjana@yandex.ru', recipients=[user.email])
-    msg.body = f'''To reset your password please visit the following link below.
+    msg.body = f'''This message was generated automatically. Do not reply to it.
+    
+You have requested a password reset token to access your Chef Blog account. 
+To change your password please visit the following link below.
 {url_for('users.reset_token', token=token, _external=True)}
     
 If you did not ask for a reset, just ignore this message.'''

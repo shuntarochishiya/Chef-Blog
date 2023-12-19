@@ -5,6 +5,8 @@ from application.database import Users, Post, Like
 from application.users.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from application.users.utils import save_picture, send_reset_email
 from application.posts.forms import SearchForm
+from no_orm import Database
+from datetime import datetime
 
 users = Blueprint('users', __name__)
 
@@ -21,8 +23,24 @@ def register():
         return redirect(url_for('main.home'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        '''
+        # no orm start
+        id = None
+        username = form.username.data
+        email = form.email.data
+        password = form.password.data
+        reg_date = datetime.now()
+        if form.email.data in ['sasukeutiha719@gmail.com', 'kazakevitchtatjana@yandex.ru', 'Sakura_6@mail.ru', 'Sasukeutiha719@gmail.com', 'Kazakevitchtatjana@yandex.ru', 'sakura_6@mail.ru', 'chefblog9@gmail.com', 'Chefblog9@gmail.com']:
+            role = 'admin'
+        else:
+            role = 'user'
+        bio = 'Not set yet'
+        new_user = Database(id, username, email, password, reg_date, role, bio)
+        new_user.save()
+        # no orm end
+        '''
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        if form.email.data in ['sasukeutiha719@gmail.com', 'kazakevitchtatjana@yandex.ru', 'Sakura_6@mail.ru', 'Sasukeutiha719@gmail.com', 'Kazakevitchtatjana@yandex.ru', 'sakura_6@mail.ru']:
+        if form.email.data in ['sasukeutiha719@gmail.com', 'kazakevitchtatjana@yandex.ru', 'Sakura_6@mail.ru', 'Sasukeutiha719@gmail.com', 'Kazakevitchtatjana@yandex.ru', 'sakura_6@mail.ru', 'chefblog9@gmail.com', 'Chefblog9@gmail.com']:
             role = 'admin'
         else:
             role = 'user'
@@ -40,6 +58,17 @@ def login():
         return redirect(url_for('main.home'))
     form = LoginForm()
     if form.validate_on_submit():
+        '''
+        # no orm start
+        user = Database.get_by_email(form.email.data)
+
+        if user:
+            login_user(user, remember=form.remember.data)
+            flash("You have logged in", 'success')
+        else:
+            flash("Wrong password", 'danger')
+        # no orm end
+        '''
         user = Users.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
