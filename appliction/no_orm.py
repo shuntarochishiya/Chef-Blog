@@ -39,14 +39,12 @@ class Database(UserMixin):
         return None
 
     @staticmethod
-    def get_by_id(cuisine_id):
+    def get_by_id(post_id):
         conn = init_database()
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM Cuisine WHERE Identifier = %s LIMIT 1', [cuisine_id])
-        cuisine_data = cursor.fetchone()
+        cursor.execute('SELECT post_id, ingredient_id, Amount FROM post_ingredient_association JOIN Post ON Post.id = post_ingredient_association.post_id JOIN Ingredient ON post_ingredient_association.ingredient_id = Ingredient.id WHERE post_ingredient_association.post_id = %s', [post_id])
+        amount = cursor.fetchall()
         cursor.close()
         conn.close()
 
-        if cuisine_data:
-            return Database(*cuisine_data)
-        return None
+        return amount

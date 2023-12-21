@@ -18,7 +18,8 @@ mail = Mail()
 def init_database():
     conn = psycopg2.connect(host='localhost',
                             user='postgres',
-                            database='postgres',
+                            database='course_project',
+                            # database='postgres',
                             port=5432,
                             password='Kd9b6uxa2W')
 

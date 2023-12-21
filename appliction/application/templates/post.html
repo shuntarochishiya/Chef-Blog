@@ -39,10 +39,10 @@
                 {% endfor %}
             {% endfor %}
             <p class="lead">Ingredients:</p>
-            {% for ingredient in ingredients %}
-                {% for product in post.ingredients %}
-                    {% if ingredient.id == product.id %}
-                        <p>{{ ingredient.name }}</p>
+            {% for ingredient in post.ingredients %}
+                {% for product in amount %}
+                    {% if ingredient.id == product[1] %}
+                        <p>{{ ingredient.name }}: {{ product[2] }} </p>
                     {% endif %}
                 {% endfor %}
             {% endfor %}

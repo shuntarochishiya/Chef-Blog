@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 from application import db
 from application.database import Post, Comment, Like, Cuisine, Category, Ingredient, post_ingredient_association
 from application.posts.forms import PostForm, SearchForm
+from no_orm import Database
 
 posts = Blueprint('posts', __name__)
 
@@ -51,8 +52,8 @@ def post(post_id):
     post = Post.query.get_or_404(post_id)
     cuisines = Cuisine.query.all()
     categories = Category.query.all()
-    ingredients = Ingredient.query.all()
-    return render_template('post.html', title=post.title, post=post, cuisines=cuisines, categories=categories, ingredients=ingredients)
+    amount = Database.get_by_id(post_id)
+    return render_template('post.html', title=post.title, post=post, cuisines=cuisines, categories=categories, amount=amount)
 
 
 @posts.route("/post/<int:post_id>/update", methods=['GET', 'POST'])
@@ -143,7 +144,7 @@ def delete_comment(comment_id):
     else:
         db.session.delete(comment)
         db.session.commit()
-
+        flash("Comment has been deleted.", 'info')
     return redirect(url_for('main.home'))
 
 
