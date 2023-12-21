@@ -63,9 +63,9 @@ def update_post(post_id):
     if post.author != current_user and current_user.role != 'admin':
         abort(403)
     form = PostForm()
-    form.category.choices = [(ca.id, ca.name) for ca in Category.query.all()]
-    form.cuisine.choices = [(cu.id, cu.name) for cu in Cuisine.query.all()]
-    form.ingredient.choices = [(i.id, i.name) for i in Ingredient.query.all()]
+    form.category.choices = [(ca.id, ca.name) for ca in Category.query.order_by(Category.name.asc()).all()]
+    form.cuisine.choices = [(cu.id, cu.name) for cu in Cuisine.query.order_by(Cuisine.name.asc()).all()]
+    form.ingredient.choices = [(i.id, i.name) for i in Ingredient.query.order_by(Ingredient.name.asc()).all()]
     if form.validate_on_submit():
         post.title = form.title.data
         post.content = form.content.data
