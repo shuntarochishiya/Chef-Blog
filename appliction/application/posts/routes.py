@@ -52,7 +52,7 @@ def post(post_id):
     post = Post.query.get_or_404(post_id)
     cuisines = Cuisine.query.all()
     categories = Category.query.all()
-    amount = Database.get_by_id(post_id)
+    amount = Database.get_ingredients(post_id)
     return render_template('post.html', title=post.title, post=post, cuisines=cuisines, categories=categories, amount=amount)
 
 
@@ -167,12 +167,12 @@ def like(post_id):
 @posts.route("/cuisine/<int:cuisine_id>")
 def dish_cuisine(cuisine_id):
     cuisine = Cuisine.query.get_or_404(cuisine_id)
-    posts = Post.query.order_by(Post.date_posted.desc()).all()
-    return render_template('dish_cuisines.html', posts=posts, cuisine=cuisine)
+    result = Database.get_cuisines(cuisine_id)
+    return render_template('dish_cuisines.html', cuisine=cuisine, result=result)
 
 
 @posts.route("/category/<int:category_id>")
 def dish_category(category_id):
     category = Category.query.get_or_404(category_id)
-    posts = Post.query.order_by(Post.date_posted.desc()).all()
-    return render_template('dish_categories.html', posts=posts, category=category)
+    result = Database.get_categories(category_id)
+    return render_template('dish_categories.html', result=result, category=category)
