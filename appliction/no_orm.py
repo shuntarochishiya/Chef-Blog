@@ -1,8 +1,7 @@
 from application import init_database
-from flask_login import UserMixin
 
 
-class Database(UserMixin):
+class Database:
     def __init__(self, id, username, email, password, reg_date, role, bio):
         self.id = id
         self.username = username
